@@ -19,26 +19,28 @@ export const createCounterSlice: StoreSlice<
     await get().executeTx({
       body: () => get().counterDataService.increment(),
       params: {
-        type: 'increment',
+        type: "increment",
         payload: {},
       },
     });
   },
-  decrement: async () => {
+  decrement: async (chainId: number  = 3) => {
+    const counterDataService = chainId == 3 ? get().counterDataService : get().anotherCounterDataService;
     await get().executeTx({
-      body: () => get().counterDataService.decrement(),
+      body: () => counterDataService.decrement(),
       params: {
-        type: 'decrement',
+        type: "decrement",
         payload: {},
       },
     });
   },
   counterLoading: true,
-  getCounterValue: async () => {
+  getCounterValue: async (chainId: number = 3) => {
+    const counterDataService = chainId == 3 ? get().counterDataService : get().anotherCounterDataService;
     set({
       counterLoading: true,
     });
-    const counterValue = await get().counterDataService.fetchCurrentNumber();
+    const counterValue = await counterDataService.fetchCurrentNumber();
     set({
       counterValue,
       counterLoading: false,

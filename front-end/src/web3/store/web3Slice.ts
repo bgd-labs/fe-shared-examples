@@ -13,7 +13,10 @@ import {
   ExtendedChainInformation,
 } from "../../packages/src";
 import { AddEthereumChainParameter } from "@web3-react/types";
-import { ChainInformation, initChainInformationConfig } from "../../packages/src/utils/chainInfoHelpers";
+import {
+  ChainInformation,
+  initChainInformationConfig,
+} from "../../packages/src/utils/chainInfoHelpers";
 
 const ETH: AddEthereumChainParameter["nativeCurrency"] = {
   name: "Ether",
@@ -21,31 +24,44 @@ const ETH: AddEthereumChainParameter["nativeCurrency"] = {
   decimals: 18,
 };
 
-
 export const CHAINS: {
   [chainId: number]: ChainInformation;
 } = {
   5: {
-    urls: [
-      RPC_URL,
-    ],
+    urls: [RPC_URL],
     nativeCurrency: ETH,
     name: "Goereli testnet",
     blockExplorerUrls: ["https://etherscan.io"],
   },
 };
 
-export const chainInfoHelpers = initChainInformationConfig(CHAINS);
+export const LOCAL_CHAINS: {
+  [chainID: number]: ChainInformation;
+} = {
+  3: {
+    urls: ["http://127.0.0.1:8434"],
+    nativeCurrency: ETH,
+    name: "3",
+  },
+  4: {
+    urls: ["http://127.0.0.1:8545"],
+    nativeCurrency: ETH,
+    name: "4",
+  },
+};
+
+export const chainInfoHelpers = initChainInformationConfig(LOCAL_CHAINS);
 
 export type Web3Slice = BaseWeb3Slice & {
   // here application custom properties
   rpcProvider: ethers.providers.JsonRpcBatchProvider;
   counterDataService: CounterDataService;
+  anotherCounterDataService: CounterDataService;
 };
 
 // having separate rpc provider for reading data only
 export const getDefaultRPCProviderForReadData = () => {
-  return chainInfoHelpers.providerInstances[5].instance
+  return chainInfoHelpers.providerInstances[4].instance;
 };
 
 export const createWeb3Slice: StoreSlice<Web3Slice> = (set, get) => ({
@@ -62,5 +78,8 @@ export const createWeb3Slice: StoreSlice<Web3Slice> = (set, get) => ({
   rpcProvider: getDefaultRPCProviderForReadData(),
   counterDataService: new CounterDataService(
     getDefaultRPCProviderForReadData()
+  ),
+  anotherCounterDataService: new CounterDataService(
+    chainInfoHelpers.providerInstances[3].instance
   ),
 });
